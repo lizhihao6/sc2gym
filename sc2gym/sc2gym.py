@@ -1,10 +1,14 @@
 import logging
 from define import SCREEN_FEATURES, MINIMAP_FEATURES, ACTIONS
 
-import gym
+import sys
+from absl import flags
+
 from pysc2.env import sc2_env
 from pysc2.env.environment import StepType
 from pysc2.lib import actions
+
+import numpy as np
 
 __author__ = 'lizhihao6'
 
@@ -12,30 +16,25 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class SC2GameEnv(gym.Env):
+class SC2GameEnv():
 
-    metadata = {'render.modes': [None, 'human']}
+    def __init__(self, **kwargs):
 
-    def __init__(self, **kwargs) -> None:
-
-        super().__init__()
-        self._kwargs = kwargs
-        self._env = None
-        self._episode = 0
-        self._num_step = 0
-        self._episode_reward = 0
-        self._total_reward = 0
+        FLAGS = flags.FLAGS
+        FLAGS(sys.argv)
+        self.env = sc2_env.SC2Env(**kwargs)
+        self.episode = 0
+        self.num_step = 0
+        self.episode_reward = 0
+        self.total_reward = 0
+        self.screen_size = self.env.observation_spec()["screen"][1:]
+        self.minimap_size = self.env.observation_spec()["minimap"][1:]
+        self.minimap_size = None
 
     def step(self, action):
 
-        self._num_step += 1
-
-        if action[0] not in self.available_actions:
-            logger.warning("Attempted unavailable action: %s", action)
-            action = [0]
-
         try:
-            obs = self._env.step(
+            obs = self.env.step(
                 [actions.FunctionCall(action[0], action[1:])])[0]
         except KeyboardInterrupt:
             logger.info("Interrupted. Quitting...")
@@ -45,49 +44,107 @@ class SC2GameEnv(gym.Env):
                 "An unexpected error occurred while applying action to environment.")
             return None, 0, True, {}
 
-        self.available_actions = obs.observation['available_actions']
+        state, useless_state = self.obs2state(obs)
         reward = obs.reward
-        self._episode_reward += reward
-        self._total_reward += reward
-        # todo: obs to numpy
-        return obs, reward, obs.step_type == StepType.LAST, {}
+        done = (obs.step_type == StepType.LAST)
+        self.num_step += 1
+        self.episode_reward += reward
+        self.total_reward += reward
 
-    # 每训练到一定episode终止训练，一次训练由多个episode构成
+        return state, reward, done, useless_state
+
     def reset(self):
 
-        if self._env is None:
-            self._env = sc2_env.SC2Env(**self._kwargs)
-
-        if self._episode > 0:
+        if self.episode > 0:
             logger.info("Episode %d ended with reward %d after %d steps.",
-                        self._episode, self._episode_reward, self._num_step)
+                        self.episode, self.episode_reward, self.num_step)
             logger.info("Got %d total reward so far, with an average reward of %g per episode",
-                        self._total_reward, float(self._total_reward) / self._episode)
+                        self.total_reward, float(self.total_reward) / self.episode)
 
-        self._episode += 1
-        self._num_step = 0
-        self._episode_reward = 0
+        self.episode += 1
+        self.num_step = 0
+        self.episode_reward = 0
 
-        logger.info("Episode %d starting...", self._episode)
-        obs = self._env.reset()[0]
+        logger.info("Episode %d starting...", self.episode)
 
-        self.available_actions = obs.observation['available_actions']
+        return self.obs2state(self.env.reset()[0])
 
-        # todo: obs2numpy
-        return obs
+    def close(self):
 
-    def save_replay(self, replay_dir): -> None
-        self._env.save_replay(replay_dir)
-        
-    def _close(self): -> None
-
-        if self._episode > 0:
+        if self.episode > 0:
             logger.info("Episode %d ended with reward %d after %d steps.",
-                        self._episode, self._episode_reward, self._num_step)
+                        self.episode, self.episode_reward, self.num_step)
             logger.info("Got %d total reward, with an average reward of %g per episode",
-                        self._total_reward, float(self._total_reward) / self._episode)
+                        self.total_reward, float(self.total_reward) / self.episode)
 
-        if self._env is not None:
-            self._env.close()
+        if self.env is not None:
+            self.env.close()
 
-        super()._close()
+    def obs2state(self, obs):
+
+        state_dic = {}
+
+        for (name, index) in zip(SCREEN_FEATURES._NAMES, SCREEN_FEATURES._INDEXS):
+            state_dic[name] = obs.observation["screen"][index]
+        for (name, index) in zip(MINIMAP_FEATURES._NAMES, MINIMAP_FEATURES._INDEXS):
+            state_dic["mini_"+name] = obs.observation["minimap"][index]
+
+        multi_select = obs.observation["multi_select"]
+        state_dic["multi_select"] = self.multi2single(
+            obs.observation["multi_select"])
+        state_dic["build_queue"] = self.multi2single(
+            obs.observation["build_queue"])
+
+        available_actions = obs.observation["available_actions"]
+        state_dic["available_actions"] = available_actions
+        state_dic["available_actions_args_max"] = self.get_args_max(
+            available_actions)
+
+        other_names = ["player", "game_loop", "score_cumulative",
+                       "single_select", "control_groups"]
+        for name in other_names:
+            state_dic[name] = obs.observation[name]
+
+        useless_dict = {}
+        useless_name = {"cargo", "cargo_slots_available",
+                        "build_queue", "multi_select"}
+        for name in useless_name:
+            useless_dict[name] = obs.observation[name]
+
+        return state_dic, useless_dict
+
+    def get_args_max(self, available_actions):
+
+        args_max_list = []
+
+        for action_id in available_actions:
+            arg_max_list = []
+            for arg_name in ACTIONS._ARGS[action_id]:
+                if arg_name == "screen" or arg_name == "screen2":
+                    arg_max_list.append(self.screen_size)
+                elif arg_name == "minimap":
+                    arg_max_list.append(self.minimap_size)
+                else:
+                    arg_max_list.append(ACTIONS._ARGS_MAX[arg_name])
+            args_max_list.append(arg_max_list)
+
+        return args_max_list
+
+    def multi2single(self, multi):
+
+        single_list = [0 for i in range(7)]
+        if multi.shape[0] > 0:
+            id_list = []
+            for single in multi:
+                id_list.append(single[0])
+                for i in range(1, 7):
+                    single_list[i] += single[i]
+            id_counts = np.bincount(id_list)
+            single_list[0] = np.argmax(id_counts)
+        return single_list
+
+
+if __name__ == "__main__":
+    sc2 = SC2GameEnv(map_name="CollectMineralsAndGas")
+    state, _ = sc2.reset()
+    sc2.close()
