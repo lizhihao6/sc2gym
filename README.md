@@ -57,18 +57,12 @@ env.close()
 ```
 其中各个参数的大小及意义为:
 
-| 参数名 | sizes | max_value | 描述 |   
-
-| :---- | :----: | :----: | :---- |
-
+| 参数名 | sizes | max_value | 描述 |
+| ------------ | :------------: | :------------: | ------------ |
 | height_map | (screen_size, screen_size) | 256 | 地形高度 |
-
 | visibility_map | (screen_size, screen_size) | 3 | 地图的可见性 [隐藏, 可见, 暂时可见, ？] |
-
 | creep | (screen_size, screen_size) | 1 | 是否有虫族菌层覆盖 |
-
 | power | (screen_size, screen_size) | 1 | 是否有神族水晶塔(只显示己方水晶塔) |
-
 | player_id | (screen_size, screen_size) | 16 | 谁拥有当前单位, id是唯一确定的 |
 | player_relative | (screen_size, screen_size) | 4 | 当前单位和己方的关系  [背景, 己方, 盟友, 中立, 敌方]  |
 | unit_type | (screen_size, screen_size) | 1850 | 当前单位的类型, 详见[pysc2/lib/units.py](https://github.com/deepmind/pysc2/blob/master/pysc2/lib/units.py) |
