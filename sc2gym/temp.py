@@ -18,8 +18,11 @@
             
 # print(args_dict)
 
-arg = "a"
-print(arg == "b" or == "a")
+from define import SCREEN_FEATURES,MINIMAP_FEATURES
+
+for s in MINIMAP_FEATURES._SCALES:
+    print(s)
+
 
 #     # todo 封装args
 #     args = [[numpy.random.randint(0, size) for size in arg.sizes]

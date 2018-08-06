@@ -135,12 +135,25 @@ class SC2GameEnv():
         single_list = [0 for i in range(7)]
         if multi.shape[0] > 0:
             id_list = []
+            player_relative_list = []
+            transport_list = []
+            built_progress = 0.0
+            single_num = 0.0
             for single in multi:
                 id_list.append(single[0])
-                for i in range(1, 7):
+                player_relative_list.append(single[1])
+                for i in range(2, 5):
                     single_list[i] += single[i]
+                transport_list.append(single[5])
+                single_num += 1
+                built_progress += single[6]
             id_counts = np.bincount(id_list)
+            player_relative_counts = np.bincount(player_relative_list)
+            transport_counts = np.bincount(transport_list)
             single_list[0] = np.argmax(id_counts)
+            single_list[1] = np.argmax(player_relative_counts)
+            single_list[5] = np.argmax(transport_counts)
+            single_list[6] = built_progress/single_num
         return single_list
 
 
