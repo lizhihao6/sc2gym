@@ -1,5 +1,25 @@
 # SC2GYM
 
+<!-- TOC -->
+
+- [SC2GYM](#sc2gym)
+    - [简介](#简介)
+    - [调用流程](#调用流程)
+    - [类型说明](#类型说明)
+        - [env](#env)
+        - [state](#state)
+        - [reward](#reward)
+        - [done](#done)
+        - [useless state](#useless-state)
+        - [useless_state](#useless_state)
+    - [函数API](#函数api)
+        - [sc2gym.SC2GameEnv(**kwargs)](#sc2gymsc2gameenvkwargs)
+        - [sc2gym.SC2GameEnv.reset()](#sc2gymsc2gameenvreset)
+        - [sc2gym.SC2GameEnv.step(action)](#sc2gymsc2gameenvstepaction)
+        - [sc2gym.SC2GameEnv.close()](#sc2gymsc2gameenvclose)
+
+<!-- /TOC -->
+
 ## 简介
 
 SC2GYM意在简化PySC2 API的复杂调用, 将PySC2封装成类似gym的环境, 方便对算法的开发
