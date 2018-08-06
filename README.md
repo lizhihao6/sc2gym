@@ -11,7 +11,6 @@
         - [reward](#reward)
         - [done](#done)
         - [useless state](#useless-state)
-        - [useless_state](#useless_state)
     - [函数API](#函数api)
         - [sc2gym.SC2GameEnv(**kwargs)](#sc2gymsc2gameenvkwargs)
         - [sc2gym.SC2GameEnv.reset()](#sc2gymsc2gameenvreset)
@@ -103,14 +102,14 @@ env.close()
 | mini_player_id | (minimap_size, minimap_size) | 17 | 小地图上谁拥有当前单位, id是唯一确定的 |
 | mini_player_relative | (minimap_size, minimap_size) | 4 | 小地图上当前单位和己方的关系  [背景, 己方, 盟友, 中立, 敌方] |
 | mini_selected | (minimap_size, minimap_size) | 1 | 小地图上当前单位是否被选中 |
-| multi_select | (7) | [1850, 3, 1600, 1000, 1000, 1, 100] | [选中单位出现最多的单位的类型[pysc2/lib/units.py](https://github.com/deepmind/pysc2/blob/master/pysc2/lib/units.py), 选中单位和己方的关系的众数, 选中单位的总计生命值, 选中单位的总计护盾值, 选中单位的总计能量值, 选中单位是否被运送的众数, 选中单位的平均建造进度 ] |
-| build_queue | (7) | [1850, 3, 1600, 1000, 1000, 1, 100] | 与multi_select相同, 但是全部单位为全部正在监造的单位 |
+| multi_select | (7) | unknown | [选中单位出现最多的单位的类型[pysc2/lib/units.py](https://github.com/deepmind/pysc2/blob/master/pysc2/lib/units.py), 选中单位和己方的关系的众数, 选中单位的总计生命值, 选中单位的总计护盾值, 选中单位的总计能量值, 选中单位是否被运送的众数, 选中单位的平均建造进度 ] |
+| build_queue | (7) | unknown | 与multi_select相同, 但是全部单位为全部正在监造的单位 |
 | available_actions | (n) | [514, 514 ...] | 下一步可进行的动作的id |
-| available_actions_args_max | (n, args_n) | [  [ [p], [x, y] ] , ...  ] | 下一步的可执行的动作的所需的参数的列表, 长度与available_actions相同, 比如取available_actions_args_max[0] 代表得到available_actions[0]所需的参数列表, 其形式为 [ [args_0], [args_1], ... ] 其中[args_0] 代表所需的第一个参数的最大值, 可能为离散状态, 这时args_0为总共有多少种状态, 也可能代表屏幕上的一个点, 这时候[args_0]为[max_x,max_y]即屏幕上x,y能取到的最大的点 |
+| available_actions_args_max | (n, args_n) | unknown | 下一步的可执行的动作的所需的参数的列表, 长度与available_actions相同, 比如取available_actions_args_max[0] 代表得到available_actions[0]所需的参数列表, 其形式为 [ [args_0], [args_1], ... ] 其中[args_0] 代表所需的第一个参数的最大值, 可能为离散状态, 这时args_0为总共有多少种状态, 也可能代表屏幕上的一个点, 这时候[args_0]为[max_x,max_y]即屏幕上x,y能取到的最大的点 |
 | player | (11) | unknown | 给定player的相关信息 [player_id, 矿物储量, 气储量, 当前人口, 人口上限, 战斗人口, 农民人口, 空闲农民数, 军队数量(这里跟人口不一样, 因为例如神族一个龙骑占2人口), P的传送门数量, Z的幼虫数量] |
 | game_loop | (1) | unknown | unknown | 
 | score_cumulative | (13) | unknown | 累计分数 [idle_production_time, idle_worker_time, total_value_units, total_value_structures, killed_value_units, killed_value_structures, collected_minerals, collected_vespene, collection_rate_minerals, collection_rate_vespene, spent_minerals, spent_vespene]  |
-| single_select | (7) | [1850, 3, 1600, 1000, 1000, 1, 100] | [选中单位的类型[pysc2/lib/units.py](https://github.com/deepmind/pysc2/blob/master/pysc2/lib/units.py), 选中单位和己方的关系, 选中单位的生命值, 选中单位的护盾值, 选中单位的能量值, 选中单位是否被运送, 选中单位的建造进度 ] |
+| single_select | (7) | unknown | [选中单位的类型[pysc2/lib/units.py](https://github.com/deepmind/pysc2/blob/master/pysc2/lib/units.py), 选中单位和己方的关系, 选中单位的生命值, 选中单位的护盾值, 选中单位的能量值, 选中单位是否被运送, 选中单位的建造进度 ] |
 | control_groups | (10, 2)| [1850, n] | 编组, 2维含义分别是leader_unit_type和单位数量 |
 
 ### reward
@@ -124,8 +123,6 @@ env.close()
 ```
 这里的build_queue以及multi_select均为官方默认, 维度可变不容易处理
 
-
-### useless_state
 
 ## 函数API
 
