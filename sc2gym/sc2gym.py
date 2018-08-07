@@ -1,5 +1,5 @@
 import logging
-from define import SCREEN_FEATURES, MINIMAP_FEATURES, ACTIONS
+from sc2gym.define import SCREEN_FEATURES, MINIMAP_FEATURES, ACTIONS
 
 import sys
 from absl import flags
