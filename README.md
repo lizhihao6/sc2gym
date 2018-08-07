@@ -4,6 +4,7 @@
 
 - [SC2GYM](#sc2gym)
     - [简介](#简介)
+    - [安装](#安装)
     - [调用流程](#调用流程)
     - [类型说明](#类型说明)
         - [env](#env)
@@ -30,6 +31,14 @@ SC2GYM意在简化PySC2 API的复杂调用, 将PySC2封装成类似gym的环境,
 2.虽然封装成了类似gym的环境, 但并未调用gym库, 在部分调用上和gym可能存在一些区别, 因此请仔细阅读本文档
 
 3.测试环境基于windows10 + pysc2 version: 1.2
+
+## 安装
+
+``` bash
+git clone https://github.com/lizhihao6/sc2gym.git
+cd sc2gym
+python3 setup.py install
+```
 
 ## 调用流程
 
