@@ -156,8 +156,6 @@ class SC2GameEnv():
             single_list[6] = built_progress/single_num
         return single_list
 
+    def save_replay(self, replay_dir):
 
-if __name__ == "__main__":
-    sc2 = SC2GameEnv(map_name="CollectMineralsAndGas")
-    state, _ = sc2.reset()
-    sc2.close()
+        self.env.save_replay(replay_dir)
