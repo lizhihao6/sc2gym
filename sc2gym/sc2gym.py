@@ -29,7 +29,6 @@ class SC2GameEnv():
         self.total_reward = 0
         self.screen_size = self.env.observation_spec()["screen"][1:]
         self.minimap_size = self.env.observation_spec()["minimap"][1:]
-        self.minimap_size = None
 
     def step(self, action):
 
