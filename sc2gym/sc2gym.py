@@ -64,8 +64,6 @@ class SC2GameEnv():
         self.num_step = 0
         self.episode_reward = 0
 
-        logger.info("Episode %d starting...", self.episode)
-
         return self.obs2state(self.env.reset()[0])
 
     def close(self):
